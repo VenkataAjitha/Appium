@@ -1,0 +1,25 @@
+appPackage=com.vodqareactnative
+plateformVersion=10
+deviceScreenSize=1080x2160
+statBarHeight=60
+networkConnectionEnabled=true
+warnings={}
+viewportRect={left=0, top=60, width=1080, height=1980}
+plateformName=android
+databaseEnabled=false
+deviceName=emulator-5554
+platform=LINUX
+deviceUDID=emulator-5554
+appActivity=com.vodqareactnative.MainActivity
+desired={browserName=, platformName=android, plateformName=android, plateformVersion=10, appActivity=com.vodqareactnative.MainActivity, appPackage=com.vodqareactnative, deviceName=emulator-5554}
+pixelRatio=2.5
+platformVersion=10
+locationContextEnabled=false
+webStorageEnabled=false
+takesScreenshot=true
+deviceModel=Android SDK built for x86
+deviceScreenDensity=400
+javascriptEnabled=true
+deviceManufacturer=Google
+deviceApiLevel=29
+platformName=android
