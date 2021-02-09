@@ -44,8 +44,8 @@ public class AndroidCookie {
 			//launch site and do login via form filling
 			WebDriverWait wait=new WebDriverWait(driver,10);
 			driver.get("http://expenseus.com/user/login");
-			wait.until(ExpectedConditions.presenceOfElementLocated(By.name("user[email]"))).sendKeys("magnitiait@gmail.com");
-			driver.findElement(By.name("user[password]")).sendKeys("abdulkalam");
+			wait.until(ExpectedConditions.presenceOfElementLocated(By.name("user[email]"))).sendKeys("xxxxx");
+			driver.findElement(By.name("user[password]")).sendKeys("xxxxx");
 			driver.findElement(By.xpath("//input[@value='Log In']")).click();
 			Thread.sleep(5000);
 			try
