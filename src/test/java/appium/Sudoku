@@ -1,0 +1,200 @@
+package appium;
+
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
+
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.remote.CapabilityType;
+import org.openqa.selenium.remote.DesiredCapabilities;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
+
+import io.appium.java_client.MobileElement;
+import io.appium.java_client.android.AndroidDriver;
+
+public class Sudoku {
+
+	static List<Integer> list = new ArrayList<Integer>();
+	static int[][] board;
+
+	public static void main(String[] args) throws Exception {
+		// start appium server
+		Runtime.getRuntime().exec("cmd.exe /c start cmd.exe /k \"appium\"");
+		URL u = new URL("http://0.0.0.0:4723/wd/hub");
+
+		// Desired capabilities
+		DesiredCapabilities dc = new DesiredCapabilities();
+		dc.setCapability(CapabilityType.BROWSER_NAME, "");
+		dc.setCapability("deviceName", "emulator-5554");
+		dc.setCapability("platformName", "android");
+		dc.setCapability("platformVersion", "8.1.0");
+		dc.setCapability("appPackage", "com.tltechnologies.sudokugame");
+		dc.setCapability("appActivity", "com.tltechnologies.sudokugame.DashboardActivity");
+
+		// launch App in device through Appium server by creating driver object
+		AndroidDriver driver;
+
+		while (2 > 1) {
+			try {
+				driver = new AndroidDriver(u, dc);
+				break;
+			} catch (Exception ex) {
+			}
+		} // while
+
+		try {
+			WebDriverWait w = new WebDriverWait(driver, 20);
+			w.until(ExpectedConditions.elementToBeClickable(By.xpath("//*[@text='PLAY']"))).click();
+			w.until(ExpectedConditions.elementToBeClickable(By.xpath("//*[@text='APPLY']"))).click();
+			w.until(ExpectedConditions.visibilityOfElementLocated(By.xpath(
+					"//*[@resource-id='com.tltechnologies.sudokugame:id/layout_sudoku_board']/android.widget.TableLayout")));
+			List<MobileElement> rows = (List<MobileElement>) driver.findElements(By.xpath(
+					"//*[@resource-id='com.tltechnologies.sudokugame:id/layout_sudoku_board']/android.widget.TableLayout/android.widget.TableRow"));
+
+			for (MobileElement row : rows) {
+				List<MobileElement> cells = row.findElements(By
+						.xpath("descendant::*[contains(@resource-id,'com.tltechnologies.sudokugame:id/layout_root')]"));
+				for (MobileElement cell : cells) {
+					try {
+						MobileElement e = cell.findElementById("com.tltechnologies.sudokugame:id/text");
+						list.add(Integer.parseInt(e.getText()));
+					} catch (Exception e) {
+						list.add(0);
+					}
+				}
+			}
+
+			Sudoku sudoku = new Sudoku();
+			board = listToArray(list);
+			sudoku.display(board);
+			if (solve(board)) {
+				System.out.println("Solved Sudoku");
+				Sudoku.display(board);
+
+				for (int i = 0; i < rows.size(); i++) {
+					// List<MobileElement> cells =
+					// rows.get(i).findElementsById("com.tltechnologies.sudokugame:id/layout_root");
+					List<MobileElement> cells = rows.get(i).findElements(By.xpath(
+							"descendant::*[contains(@resource-id,'com.tltechnologies.sudokugame:id/layout_root')]"));
+					for (int j = 0; j < cells.size(); j++) {
+						try {
+							// MobileElement ele =
+							// cells.get(j).findElementByXPath("child::*[@resource-id='com.tltechnologies.sudokugame:id/text']");
+							MobileElement ele = cells.get(j)
+									.findElementById("com.tltechnologies.sudokugame:id/note_layout");
+							ele.click();
+
+							MobileElement e = (MobileElement) driver
+									.findElementById("com.tltechnologies.sudokugame:id/root_layout");
+							MobileElement num = e.findElementById("com.tltechnologies.sudokugame:id/digit_layout");
+							num.findElementByXPath("//*[@content-desc=" + board[i][j] + "]").click();
+						} catch (Exception ex) {
+
+						}
+					}
+				}
+			} else {
+				System.out.println("unsolved sudoku");
+			}
+		} catch (Exception ex) {
+			System.out.println(ex.getMessage());
+		}
+
+	}
+
+	private static int[][] listToArray(List<Integer> list) {
+		int size = list.size();
+		int[][] data = new int[size][size];
+		System.out.println(size);
+		for (int i = 0; i < 9; i++) {
+			for (int j = 0; j < 9; j++) {
+				data[i][j] = list.get(i * 9 + j);
+			}
+		}
+
+		return data;
+	}
+
+	public static void display(int[][] data) {
+		for (int i = 0; i < 9; i++) {
+			for (int j = 0; j < 9; j++) {
+
+				System.out.print(data[i][j]);
+			}
+			System.out.println();
+		}
+
+	}
+
+	// solve method , by using back tracing algorithm
+	public static boolean solve(int[][] board) {
+
+		for (int row = 0; row < 9; row++) {
+			for (int column = 0; column < 9; column++) {
+				if (board[row][column] == 0) {
+					for (int k = 1; k <= 9; k++) {
+
+						if (isValid(row, column, k)) {
+							board[row][column] = k;
+
+							if (solve(board)) // back tracking
+							{
+								System.out.println("backtracking");
+								return true;
+							} else {
+								board[row][column] = 0;
+							}
+						} // if end for isValid
+					} // for loop
+					return false;
+
+				} // if end cell is empty
+			}
+		}
+		return true; // sudoku solved
+	}
+
+	// check if possible number is already in row
+	private static boolean isINRow(int row, int number) {
+		for (int j = 1; j < 9; j++) // checks each column in given row
+		{
+			if (board[row][j] == number) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	// check if possible number is already in column
+	private static boolean isINColumn(int column, int number) {
+		for (int i = 1; i < 9; i++) // check each row in given column
+		{
+			if (board[i][column] == number) {
+				return true;
+			}
+		} 
+		return false;
+	}
+
+	// check if possible number is in its 3x3 box
+	private static boolean isINBox(int row, int column, int number) {
+		int r = row - row % 3;
+		int c = column - column % 3;
+		for (int i = r; i < r + 3; i++) {
+			for (int j = c; j < c + 3; j++) {
+				if (board[i][j] == number) {
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+
+	// combined method to check if a number possible to a row,column, and 3x3 box
+	private static boolean isValid(int row, int column, int number) {
+		return !isINRow(row, number) && !isINColumn(column, number) && !isINBox(row, column, number);
+	}
+}
