@@ -53,8 +53,7 @@ public class Android {
 		//close App
 				driver.quit();
 				//stop Appium Server
-				Runtime.getRuntime().exec("taskKill /F /IM node.exe");
-				Runtime.getRuntime().exec("taskKill /F /IM cmd.exe");
+				
 
 	}
 
